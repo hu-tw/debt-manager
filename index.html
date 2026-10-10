@@ -4,6 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>مدير الديون والذمم - Elite Edition</title>
+  <!-- ربط الأيقونة والتطبيق بالهاتف -->
+  <link rel="icon" type="image/svg+xml" href="icon.svg">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <meta name="theme-color" content="#4f46e5">
+
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -164,7 +169,7 @@
             </div>
           </div>
           <div class="text-2xl font-black mt-3 text-amber-600 dark:text-amber-400" id="statTotalGiven">0</div>
-          <div class="text-[11px] text-slate-400 mt-1" id="statGivenSub">المبالغ المطلوبة بالسوق</div>
+          <div class="text-[11px] text-slate-400 mt-1">المبالغ المطلوبة بالسوق</div>
         </div>
 
         <div class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl p-5 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-md transition">
@@ -175,7 +180,7 @@
             </div>
           </div>
           <div class="text-2xl font-black mt-3 text-emerald-600 dark:text-emerald-400" id="statTotalReceived">0</div>
-          <div class="text-[11px] text-slate-400 mt-1" id="statReceivedSub">المبالغ المقبوضة فعلياً</div>
+          <div class="text-[11px] text-slate-400 mt-1">المبالغ المقبوضة فعلياً</div>
         </div>
 
         <div class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl p-5 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-md transition">
@@ -186,7 +191,7 @@
             </div>
           </div>
           <div class="text-2xl font-black mt-3 text-violet-600 dark:text-violet-400" id="statNetRemaining">0</div>
-          <div class="text-[11px] text-slate-400 mt-1" id="statNetSub">الرصيد القائم بذممهم</div>
+          <div class="text-[11px] text-slate-400 mt-1">الرصيد القائم بذممهم</div>
         </div>
       </section>
 
@@ -275,7 +280,7 @@
             <!-- Render Txs -->
           </div>
 
-          <!-- Summary Footer - Displays Both Currency Totals for Selected Account -->
+          <!-- Summary Footer -->
           <div class="p-4 border-t border-slate-200/80 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/50 rounded-b-3xl space-y-1.5 text-xs font-bold">
             <div class="flex justify-between border-b pb-1 border-slate-200/50 dark:border-slate-800">
               <span class="text-slate-500">الصافي بالدينار العراقي (IQD):</span>
