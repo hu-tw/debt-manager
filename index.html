@@ -70,9 +70,9 @@
         <div>
           <h1 class="text-base font-black tracking-tight flex items-center gap-2">
             مدير الديون والذمم 
-            <span class="text-[10px] bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300 px-2 py-0.5 rounded-full font-bold">Elite Pro</span>
+            <span class="text-[10px] bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300 px-2 py-0.5 rounded-full font-bold">Dual Currency</span>
           </h1>
-          <p class="text-[11px] text-slate-500 dark:text-slate-400">إدارة القيود المالية ومتابعة الذمم</p>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400">إدارة القيود المالية (دينار عراقي / دولار)</p>
         </div>
       </div>
       <div class="flex items-center gap-2">
@@ -112,7 +112,7 @@
           <div>
             <div class="flex items-center gap-2">
               <h2 class="text-lg font-black" id="ownerNameDisplay">حساب المالك (غير محدد)</h2>
-              <span class="text-xs bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 px-2.5 py-0.5 rounded-full font-bold border border-slate-200 dark:border-slate-700" id="ownerCurrencyDisplay">IQD</span>
+              <span class="text-xs bg-indigo-100 text-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-200 px-2.5 py-0.5 rounded-full font-bold border border-indigo-200 dark:border-indigo-800" id="ownerCurrencyDisplay">IQD / USD</span>
             </div>
             <p class="text-xs text-slate-500 dark:text-slate-400 mt-1" id="ownerPhoneDisplay">لم يتم تحديد رقم الهاتف</p>
             <p class="text-xs text-slate-400 dark:text-slate-500 italic mt-0.5" id="ownerNotesDisplay">اضغط على "ملف المالك" لتحديث معلوماتك الشخصية...</p>
@@ -132,6 +132,15 @@
         </div>
       </div>
     </section>
+
+    <!-- Currency Filter Switcher for KPIs -->
+    <div class="flex items-center justify-between bg-white/60 dark:bg-slate-900/60 p-2 rounded-2xl border border-slate-200/60 dark:border-slate-800">
+      <span class="text-xs font-bold text-slate-500 px-2"><i class="fa-solid fa-coins text-indigo-500 ml-1"></i> عرض إحصائيات العملة:</span>
+      <div class="flex gap-2">
+        <button onclick="switchCurrencyFilter('IQD')" id="currFilterIQD" class="px-4 py-1.5 rounded-xl text-xs font-bold transition bg-indigo-600 text-white shadow-sm">الدينار (IQD)</button>
+        <button onclick="switchCurrencyFilter('USD')" id="currFilterUSD" class="px-4 py-1.5 rounded-xl text-xs font-bold transition bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300">الدولار ($)</button>
+      </div>
+    </div>
 
     <!-- KPI Metrics Cards & Progress -->
     <div class="space-y-4">
@@ -155,7 +164,7 @@
             </div>
           </div>
           <div class="text-2xl font-black mt-3 text-amber-600 dark:text-amber-400" id="statTotalGiven">0</div>
-          <div class="text-[11px] text-slate-400 mt-1">المبالغ المطلوبة بالسوق</div>
+          <div class="text-[11px] text-slate-400 mt-1" id="statGivenSub">المبالغ المطلوبة بالسوق</div>
         </div>
 
         <div class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl p-5 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-md transition">
@@ -166,7 +175,7 @@
             </div>
           </div>
           <div class="text-2xl font-black mt-3 text-emerald-600 dark:text-emerald-400" id="statTotalReceived">0</div>
-          <div class="text-[11px] text-slate-400 mt-1">المبالغ المقبوضة فعلياً</div>
+          <div class="text-[11px] text-slate-400 mt-1" id="statReceivedSub">المبالغ المقبوضة فعلياً</div>
         </div>
 
         <div class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl p-5 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-md transition">
@@ -177,14 +186,14 @@
             </div>
           </div>
           <div class="text-2xl font-black mt-3 text-violet-600 dark:text-violet-400" id="statNetRemaining">0</div>
-          <div class="text-[11px] text-slate-400 mt-1">الرصيد القائم بذممهم</div>
+          <div class="text-[11px] text-slate-400 mt-1" id="statNetSub">الرصيد القائم بذممهم</div>
         </div>
       </section>
 
       <!-- Progress Card -->
       <div class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl p-4.5 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm">
         <div class="flex justify-between items-center text-xs font-bold mb-2">
-          <span class="text-slate-500 dark:text-slate-400">معدل استعادة وتحصيل الديون العام</span>
+          <span class="text-slate-500 dark:text-slate-400">معدل تحصيل الديون العام (<span id="progressCurrencyLabel">IQD</span>)</span>
           <span id="collectionPercentText" class="text-indigo-600 dark:text-indigo-400 font-black">0%</span>
         </div>
         <div class="w-full bg-slate-100 dark:bg-slate-800 h-3.5 rounded-full overflow-hidden p-0.5 border border-slate-200/50 dark:border-slate-700">
@@ -266,11 +275,16 @@
             <!-- Render Txs -->
           </div>
 
-          <!-- Summary Footer -->
-          <div class="p-4 border-t border-slate-200/80 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/50 rounded-b-3xl flex items-center justify-between text-xs font-bold">
-            <div>المعطاة: <span class="text-amber-600 dark:text-amber-400" id="selectedAccountGiven">0</span></div>
-            <div>المسترجعة: <span class="text-emerald-600 dark:text-emerald-400" id="selectedAccountReceived">0</span></div>
-            <div>المتبقي: <span class="text-indigo-600 dark:text-indigo-400" id="selectedAccountNet">0</span></div>
+          <!-- Summary Footer - Displays Both Currency Totals for Selected Account -->
+          <div class="p-4 border-t border-slate-200/80 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/50 rounded-b-3xl space-y-1.5 text-xs font-bold">
+            <div class="flex justify-between border-b pb-1 border-slate-200/50 dark:border-slate-800">
+              <span class="text-slate-500">الصافي بالدينار العراقي (IQD):</span>
+              <span class="text-indigo-600 dark:text-indigo-400" id="selectedAccountNetIQD">0 IQD</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-500">الصافي بالدولار الأمريكي ($):</span>
+              <span class="text-emerald-600 dark:text-emerald-400" id="selectedAccountNetUSD">$0</span>
+            </div>
           </div>
         </div>
       </section>
@@ -295,8 +309,11 @@
           <input type="text" id="ownerPhoneInput" class="w-full p-2.5 border rounded-2xl dark:bg-slate-800 dark:border-slate-700 outline-none focus:ring-2 focus:ring-indigo-500">
         </div>
         <div>
-          <label class="block font-bold mb-1">العملة الافتراضية</label>
-          <input type="text" id="ownerCurrencyInput" placeholder="مثلاً: IQD أو $" class="w-full p-2.5 border rounded-2xl dark:bg-slate-800 dark:border-slate-700 outline-none focus:ring-2 focus:ring-indigo-500">
+          <label class="block font-bold mb-1">العملة الافتراضية الرئيسية</label>
+          <select id="ownerCurrencyInput" class="w-full p-2.5 border rounded-2xl dark:bg-slate-800 dark:border-slate-700 outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="IQD">الدينار العراقي (IQD)</option>
+            <option value="USD">الدولار الأمريكي ($)</option>
+          </select>
         </div>
         <div>
           <label class="block font-bold mb-1">رمز قفل PIN (4 أرقام - اختياري)</label>
@@ -354,6 +371,13 @@
           </select>
         </div>
         <div>
+          <label class="block font-bold mb-1">عملة الحركة</label>
+          <select id="txCurrencyInput" class="w-full p-2.5 border rounded-2xl dark:bg-slate-800 dark:border-slate-700 outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="IQD">دينار عراقي (IQD)</option>
+            <option value="USD">دولار أمريكي ($)</option>
+          </select>
+        </div>
+        <div>
           <label class="block font-bold mb-1">المبلغ</label>
           <input type="number" step="any" id="txAmountInput" class="w-full p-2.5 border rounded-2xl dark:bg-slate-800 dark:border-slate-700 outline-none focus:ring-2 focus:ring-indigo-500">
         </div>
@@ -408,8 +432,9 @@
         <table class="w-full text-xs text-right border-collapse">
           <thead>
             <tr class="border-b dark:border-slate-800 text-slate-400">
-              <th class="py-2 px-2">التاريخ والوقت</th>
+              <th class="py-2 px-2">التاريخ</th>
               <th class="py-2 px-2">البيان</th>
+              <th class="py-2 px-2">العملة</th>
               <th class="py-2 px-2">معطاة</th>
               <th class="py-2 px-2">مسترجعة</th>
             </tr>
@@ -418,9 +443,15 @@
             <!-- Rows -->
           </tbody>
         </table>
-        <div class="border-t pt-3 dark:border-slate-800 flex justify-between text-xs font-bold">
-          <span>الرصيد المتبقي بذمته:</span>
-          <span id="printNetTotal" class="text-indigo-600 text-sm font-black">0</span>
+        <div class="border-t pt-3 dark:border-slate-800 flex flex-col gap-1 text-xs font-bold">
+          <div class="flex justify-between">
+            <span>الصافي المتبقي بالدينار (IQD):</span>
+            <span id="printNetIQD" class="text-indigo-600 text-sm font-black">0 IQD</span>
+          </div>
+          <div class="flex justify-between">
+            <span>الصافي المتبقي بالدولار ($):</span>
+            <span id="printNetUSD" class="text-emerald-600 text-sm font-black">$0</span>
+          </div>
         </div>
       </div>
       <div class="flex justify-end gap-2 pt-3 border-t dark:border-slate-800">
@@ -438,7 +469,7 @@
   </footer>
 
   <script>
-    // App State - Completely Clean Setup
+    // App State - Dual Currency Setup
     let db = {
       owner: { name: '', phone: '', currency: 'IQD', pin: '', notes: '' },
       accounts: [],
@@ -446,6 +477,7 @@
     };
     let activeAccountId = null;
     let currentFilter = 'all';
+    let activeCurrencyFilter = 'IQD';
 
     // Init App
     window.addEventListener('DOMContentLoaded', () => {
@@ -469,6 +501,13 @@
     function saveStorage() {
       localStorage.setItem('debt_manager_pro_db', JSON.stringify(db));
       renderAll();
+    }
+
+    function switchCurrencyFilter(curr) {
+      activeCurrencyFilter = curr;
+      document.getElementById('currFilterIQD').className = curr === 'IQD' ? 'px-4 py-1.5 rounded-xl text-xs font-bold transition bg-indigo-600 text-white shadow-sm' : 'px-4 py-1.5 rounded-xl text-xs font-bold transition bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300';
+      document.getElementById('currFilterUSD').className = curr === 'USD' ? 'px-4 py-1.5 rounded-xl text-xs font-bold transition bg-indigo-600 text-white shadow-sm' : 'px-4 py-1.5 rounded-xl text-xs font-bold transition bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300';
+      renderKPIs();
     }
 
     // Toast Notification System
@@ -540,7 +579,7 @@
 
       if (overdueCount > 0) {
         banner.classList.remove('hidden');
-        document.getElementById('overdueCountText').innerText = `يوجد ${overdueCount} حركة معطاة تجاورت تاريخ الاستحقاق المحدد.`;
+        document.getElementById('overdueCountText').innerText = `يوجد ${overdueCount} حركة معطاة تجاوزت تاريخ الاستحقاق المحدد.`;
       } else {
         banner.classList.add('hidden');
       }
@@ -548,7 +587,7 @@
 
     function renderOwner() {
       document.getElementById('ownerNameDisplay').innerText = db.owner.name || 'حساب المالك (غير محدد)';
-      document.getElementById('ownerCurrencyDisplay').innerText = db.owner.currency || 'IQD';
+      document.getElementById('ownerCurrencyDisplay').innerText = (db.owner.currency || 'IQD') + ' / USD';
       document.getElementById('ownerPhoneDisplay').innerText = db.owner.phone ? `هاتف: ${db.owner.phone}` : 'لم يتم تحديد رقم الهاتف';
       document.getElementById('ownerNotesDisplay').innerText = db.owner.notes || 'اضغط على "ملف المالك" لتحديث معلوماتك الشخصية...';
     }
@@ -558,15 +597,20 @@
       let totalGiven = 0, totalReceived = 0;
 
       db.transactions.forEach(t => {
-        if (t.type === 'given') totalGiven += parseFloat(t.amount || 0);
-        if (t.type === 'received') totalReceived += parseFloat(t.amount || 0);
+        const tCurr = t.currency || 'IQD';
+        if (tCurr === activeCurrencyFilter) {
+          if (t.type === 'given') totalGiven += parseFloat(t.amount || 0);
+          if (t.type === 'received') totalReceived += parseFloat(t.amount || 0);
+        }
       });
 
-      const currency = db.owner.currency || 'IQD';
-      document.getElementById('statTotalGiven').innerText = `${totalGiven.toLocaleString()} ${currency}`;
-      document.getElementById('statTotalReceived').innerText = `${totalReceived.toLocaleString()} ${currency}`;
+      const currencySymbol = activeCurrencyFilter === 'USD' ? '$' : 'IQD';
+      document.getElementById('statTotalGiven').innerText = `${totalGiven.toLocaleString()} ${currencySymbol}`;
+      document.getElementById('statTotalReceived').innerText = `${totalReceived.toLocaleString()} ${currencySymbol}`;
       const net = totalGiven - totalReceived;
-      document.getElementById('statNetRemaining').innerText = `${net.toLocaleString()} ${currency}`;
+      document.getElementById('statNetRemaining').innerText = `${net.toLocaleString()} ${currencySymbol}`;
+
+      document.getElementById('progressCurrencyLabel').innerText = activeCurrencyFilter;
 
       // Progress percentage
       let percent = 0;
@@ -593,12 +637,23 @@
 
       filtered.forEach(acc => {
         const accTxs = db.transactions.filter(t => t.accountId === acc.id);
-        let given = 0, received = 0;
+        let givenIQD = 0, receivedIQD = 0;
+        let givenUSD = 0, receivedUSD = 0;
+
         accTxs.forEach(t => {
-          if (t.type === 'given') given += parseFloat(t.amount || 0);
-          if (t.type === 'received') received += parseFloat(t.amount || 0);
+          const amt = parseFloat(t.amount || 0);
+          const curr = t.currency || 'IQD';
+          if (curr === 'USD') {
+            if (t.type === 'given') givenUSD += amt;
+            if (t.type === 'received') receivedUSD += amt;
+          } else {
+            if (t.type === 'given') givenIQD += amt;
+            if (t.type === 'received') receivedIQD += amt;
+          }
         });
-        const net = given - received;
+
+        const netIQD = givenIQD - receivedIQD;
+        const netUSD = givenUSD - receivedUSD;
 
         const isSelected = activeAccountId === acc.id;
         const item = document.createElement('div');
@@ -622,10 +677,11 @@
           </div>
           <div class="text-left flex items-center gap-2">
             <div>
-              <p class="text-xs font-black ${net > 0 ? 'text-amber-600 dark:text-amber-400' : (net < 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-600')}"">
-                ${net.toLocaleString()} ${db.owner.currency || ''}
+              <p class="text-xs font-black text-slate-700 dark:text-slate-200">
+                ${netIQD !== 0 ? `${netIQD.toLocaleString()} IQD` : ''} ${netUSD !== 0 ? `${netUSD > 0 ? '+' : ''}${netUSD.toLocaleString()}$` : ''}
+                ${netIQD === 0 && netUSD === 0 ? '0' : ''}
               </p>
-              <p class="text-[9px] text-slate-400">${net > 0 ? 'مطلوب منه' : (net < 0 ? 'مستحق له' : 'متوازن')}</p>
+              <p class="text-[9px] text-slate-400">الرصيد القائم</p>
             </div>
             <div class="flex items-center gap-1">
               <button onclick="event.stopPropagation(); editAccount('${acc.id}')" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs p-1.5 rounded-lg hover:bg-slate-200/50 dark:hover:bg-slate-700" title="تعديل">
@@ -687,11 +743,19 @@
       const list = document.getElementById('transactionsList');
       list.innerHTML = '';
 
-      let given = 0, received = 0;
+      let givenIQD = 0, receivedIQD = 0;
+      let givenUSD = 0, receivedUSD = 0;
+
       db.transactions.filter(t => t.accountId === activeAccountId).forEach(t => {
         const amt = parseFloat(t.amount || 0);
-        if (t.type === 'given') given += amt;
-        if (t.type === 'received') received += amt;
+        const curr = t.currency || 'IQD';
+        if (curr === 'USD') {
+          if (t.type === 'given') givenUSD += amt;
+          if (t.type === 'received') receivedUSD += amt;
+        } else {
+          if (t.type === 'given') givenIQD += amt;
+          if (t.type === 'received') receivedIQD += amt;
+        }
       });
 
       if (txs.length === 0) {
@@ -699,6 +763,8 @@
       } else {
         txs.forEach(t => {
           const amt = parseFloat(t.amount || 0);
+          const curr = t.currency || 'IQD';
+          const currSymbol = curr === 'USD' ? '$' : 'IQD';
           const dateObj = new Date(t.dateTime);
           const formattedDate = isNaN(dateObj) ? t.dateTime : dateObj.toLocaleString('ar-IQ', { dateStyle: 'short', timeStyle: 'short' });
 
@@ -714,7 +780,10 @@
                 <i class="fa-solid ${t.type === 'given' ? 'fa-arrow-up' : 'fa-arrow-down'}"></i>
               </div>
               <div>
-                <p class="font-bold">${t.note || (t.type === 'given' ? 'إعطاء دين' : 'استرجاع مبلغ')}</p>
+                <div class="flex items-center gap-1.5">
+                  <p class="font-bold">${t.note || (t.type === 'given' ? 'إعطاء دين' : 'استرجاع مبلغ')}</p>
+                  <span class="text-[9px] bg-slate-100 dark:bg-slate-700 px-1.5 py-0.2 rounded font-mono font-bold">${curr}</span>
+                </div>
                 <div class="flex items-center gap-2 text-[10px] text-slate-400 mt-0.5">
                   <span><i class="fa-regular fa-clock"></i> ${formattedDate}</span>
                   ${t.dueDate ? `<span class="${isOverdue ? 'text-red-500 font-bold' : ''}"><i class="fa-regular fa-calendar"></i> استحقاق: ${t.dueDate}</span>` : ''}
@@ -724,7 +793,7 @@
             <div class="flex items-center gap-3">
               ${t.receipt ? `<button onclick="viewReceipt('${t.receipt}')" class="text-indigo-600 dark:text-indigo-400 hover:underline text-[11px] font-bold"><i class="fa-solid fa-paperclip"></i> الوصل</button>` : ''}
               <span class="font-black text-sm ${t.type === 'given' ? 'text-amber-600' : 'text-emerald-600'}">
-                ${t.type === 'given' ? '+' : '-'}${amt.toLocaleString()}
+                ${t.type === 'given' ? '+' : '-'}${amt.toLocaleString()} ${currSymbol}
               </span>
               <div class="flex items-center gap-1">
                 <button onclick="editTransaction('${t.id}')" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"><i class="fa-solid fa-pen"></i></button>
@@ -736,11 +805,10 @@
         });
       }
 
-      const net = given - received;
-      const currency = db.owner.currency || 'IQD';
-      document.getElementById('selectedAccountGiven').innerText = `${given.toLocaleString()} ${currency}`;
-      document.getElementById('selectedAccountReceived').innerText = `${received.toLocaleString()} ${currency}`;
-      document.getElementById('selectedAccountNet').innerText = `${net.toLocaleString()} ${currency}`;
+      const netIQD = givenIQD - receivedIQD;
+      const netUSD = givenUSD - receivedUSD;
+      document.getElementById('selectedAccountNetIQD').innerText = `${netIQD.toLocaleString()} IQD`;
+      document.getElementById('selectedAccountNetUSD').innerText = `${netUSD.toLocaleString()} $`;
     }
 
     // Owner Functions
@@ -758,7 +826,7 @@
     function saveOwnerInfo() {
       db.owner.name = document.getElementById('ownerNameInput').value.trim();
       db.owner.phone = document.getElementById('ownerPhoneInput').value.trim();
-      db.owner.currency = document.getElementById('ownerCurrencyInput').value.trim();
+      db.owner.currency = document.getElementById('ownerCurrencyInput').value;
       db.owner.pin = document.getElementById('ownerPinInput').value.trim();
       db.owner.notes = document.getElementById('ownerNotesInput').value.trim();
 
@@ -832,6 +900,7 @@
       document.getElementById('txModalTitle').innerText = 'تسجيل حركة مالية جديدة';
       document.getElementById('editTxId').value = '';
       document.getElementById('txTypeInput').value = 'given';
+      document.getElementById('txCurrencyInput').value = db.owner.currency || 'IQD';
       document.getElementById('txAmountInput').value = '';
       document.getElementById('txNoteInput').value = '';
       document.getElementById('txDueDateInput').value = '';
@@ -851,6 +920,7 @@
       document.getElementById('txModalTitle').innerText = 'تعديل الحركة المالية';
       document.getElementById('editTxId').value = t.id;
       document.getElementById('txTypeInput').value = t.type;
+      document.getElementById('txCurrencyInput').value = t.currency || 'IQD';
       document.getElementById('txAmountInput').value = t.amount;
       document.getElementById('txNoteInput').value = t.note || '';
       document.getElementById('txDateTimeInput').value = t.dateTime;
@@ -869,6 +939,7 @@
     async function saveTransaction() {
       const id = document.getElementById('editTxId').value;
       const type = document.getElementById('txTypeInput').value;
+      const currency = document.getElementById('txCurrencyInput').value;
       const amount = parseFloat(document.getElementById('txAmountInput').value);
       const dateTime = document.getElementById('txDateTimeInput').value;
       const dueDate = document.getElementById('txDueDateInput').value;
@@ -886,6 +957,7 @@
         const t = db.transactions.find(x => x.id === id);
         if (t) {
           t.type = type;
+          t.currency = currency;
           t.amount = amount;
           t.dateTime = dateTime;
           t.dueDate = dueDate;
@@ -898,6 +970,7 @@
           id: Date.now().toString(),
           accountId: activeAccountId,
           type,
+          currency,
           amount,
           dateTime,
           dueDate,
@@ -938,23 +1011,33 @@
       document.getElementById('printAccName').innerText = acc.name;
       document.getElementById('printDate').innerText = new Date().toLocaleDateString('ar-IQ');
 
-      let given = 0, received = 0;
+      let givenIQD = 0, receivedIQD = 0;
+      let givenUSD = 0, receivedUSD = 0;
+
       const tbody = document.getElementById('printTableBody');
       tbody.innerHTML = '';
 
       if (txs.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-slate-400">لا توجد حركات مسجلة</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-slate-400">لا توجد حركات مسجلة</td></tr>`;
       } else {
         txs.forEach(t => {
           const amt = parseFloat(t.amount || 0);
-          if (t.type === 'given') given += amt;
-          if (t.type === 'received') received += amt;
+          const curr = t.currency || 'IQD';
+
+          if (curr === 'USD') {
+            if (t.type === 'given') givenUSD += amt;
+            if (t.type === 'received') receivedUSD += amt;
+          } else {
+            if (t.type === 'given') givenIQD += amt;
+            if (t.type === 'received') receivedIQD += amt;
+          }
 
           const tr = document.createElement('tr');
           tr.className = "border-b dark:border-slate-800";
           tr.innerHTML = `
             <td class="py-2 px-2">${t.dateTime.replace('T', ' ')}</td>
             <td class="py-2 px-2">${t.note || (t.type === 'given' ? 'معطاة' : 'مسترجعة')}</td>
+            <td class="py-2 px-2 font-mono font-bold">${curr}</td>
             <td class="py-2 px-2 text-amber-600 font-bold">${t.type === 'given' ? amt.toLocaleString() : '-'}</td>
             <td class="py-2 px-2 text-emerald-600 font-bold">${t.type === 'received' ? amt.toLocaleString() : '-'}</td>
           `;
@@ -962,9 +1045,8 @@
         });
       }
 
-      const net = given - received;
-      const currency = db.owner.currency || 'IQD';
-      document.getElementById('printNetTotal').innerText = `${net.toLocaleString()} ${currency}`;
+      document.getElementById('printNetIQD').innerText = `${(givenIQD - receivedIQD).toLocaleString()} IQD`;
+      document.getElementById('printNetUSD').innerText = `${(givenUSD - receivedUSD).toLocaleString()} $`;
 
       document.getElementById('printModal').classList.remove('hidden');
     }
@@ -1013,9 +1095,9 @@
       const acc = db.accounts.find(a => a.id === activeAccountId);
       const txs = db.transactions.filter(t => t.accountId === activeAccountId);
 
-      let csv = "\uFEFFالنوع,المبلغ,التاريخ,الملاحظات\n";
+      let csv = "\uFEFFالنوع,العملة,المبلغ,التاريخ,الملاحظات\n";
       txs.forEach(t => {
-        csv += `"${t.type === 'given' ? 'معطاة' : 'مسترجعة'}","${t.amount}","${t.dateTime}","${t.note || ''}"\n`;
+        csv += `"${t.type === 'given' ? 'معطاة' : 'مسترجعة'}","${t.currency || 'IQD'}","${t.amount}","${t.dateTime}","${t.note || ''}"\n`;
       });
 
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -1034,15 +1116,25 @@
       const acc = db.accounts.find(a => a.id === activeAccountId);
       const txs = db.transactions.filter(t => t.accountId === activeAccountId);
 
-      let given = 0, received = 0;
-      txs.forEach(t => {
-        if (t.type === 'given') given += parseFloat(t.amount || 0);
-        if (t.type === 'received') received += parseFloat(t.amount || 0);
-      });
-      const net = given - received;
-      const currency = db.owner.currency || 'IQD';
+      let givenIQD = 0, receivedIQD = 0;
+      let givenUSD = 0, receivedUSD = 0;
 
-      const msg = `مرحباً ${acc.name}،%0Aتفاصيل كشف الحساب من ${db.owner.name || 'حسابنا'}:%0A- إجمالي المبالغ المعطاة: ${given.toLocaleString()} ${currency}%0A- إجمالي المبالغ المقبوضة: ${received.toLocaleString()} ${currency}%0A*الصافي المتبقي في الذمة: ${net.toLocaleString()} ${currency}*%0Aشكراً لك!`;
+      txs.forEach(t => {
+        const amt = parseFloat(t.amount || 0);
+        const curr = t.currency || 'IQD';
+        if (curr === 'USD') {
+          if (t.type === 'given') givenUSD += amt;
+          if (t.type === 'received') receivedUSD += amt;
+        } else {
+          if (t.type === 'given') givenIQD += amt;
+          if (t.type === 'received') receivedIQD += amt;
+        }
+      });
+
+      const netIQD = givenIQD - receivedIQD;
+      const netUSD = givenUSD - receivedUSD;
+
+      const msg = `مرحباً ${acc.name}،%0Aتفاصيل كشف الحساب من ${db.owner.name || 'حسابنا'}:%0A*الرصيد المتبقي بالدينار: ${netIQD.toLocaleString()} IQD*%0A*الصافي المتبقي بالدولار: ${netUSD.toLocaleString()} $*%0Aشكراً لك!`;
 
       const phone = acc.phone ? acc.phone.replace(/[^0-9]/g, '') : '';
       window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
